@@ -1,17 +1,17 @@
 /**
  * holiday-calculator
  * Copyright (C) 2022 itsallcode <github@kuhnke.net>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -28,49 +29,56 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.itsallcode.holidays.calculator.logic.parser.HolidaysFileParser;
 import org.itsallcode.holidays.calculator.logic.variants.EasterBasedHoliday;
 import org.itsallcode.holidays.calculator.logic.variants.FixedDateHoliday;
 import org.itsallcode.holidays.calculator.logic.variants.FloatingHoliday;
-import org.itsallcode.holidays.calculator.logic.variants.Holiday;
 import org.itsallcode.holidays.calculator.logic.variants.FloatingHoliday.Direction;
+import org.itsallcode.holidays.calculator.logic.variants.Holiday;
 import org.junit.jupiter.api.Test;
 
-class HolidaySetTest {
-
+class HolidaySetTest
+{
 	@Test
-	void illegalLine() throws IOException {
+	void illegalLine() throws IOException
+	{
 		final HolidaysFileParser parser = new HolidaysFileParser("illegal_input");
 		parser.parse(new ByteArrayInputStream("#\n\nillegal line".getBytes()));
-		assertThat(parser.getErrors().size()).isEqualTo(1);
+		assertThat(parser.getErrors()).hasSize(1);
 		assertThat(parser.getErrors().get(0).lineNumber).isEqualTo(3);
 	}
 
 	@Test
-	void comment() throws IOException {
+	void comment() throws IOException
+	{
 		final HolidaysFileParser parser = new HolidaysFileParser("comment line");
 		final List<Holiday> actual = parser.parse(new ByteArrayInputStream(" # comment\n".getBytes()));
-		assertThat(parser.getErrors().size()).isZero();
+		assertThat(parser.getErrors()).isEmpty();
 		assertThat(actual).isEmpty();
 	}
 
 	@Test
-	void holidayWithEolComment() throws IOException {
+	void holidayWithEolComment() throws IOException
+	{
 		final HolidaysFileParser parser = new HolidaysFileParser("holiday with eol comment");
 		final List<Holiday> actual = parser
 				.parse(new ByteArrayInputStream(" birthday fixed 7 31 My Birthday # comment \n".getBytes()));
-		assertThat(parser.getErrors().size()).isZero();
+		assertThat(parser.getErrors()).isEmpty();
 		assertThat(actual).containsExactly(new FixedDateHoliday("birthday", "My Birthday", MonthDay.of(7, 31)));
 	}
 
 	@Test
-	void allBarbarianHolidays() throws IOException {
+	void allBarbarianHolidays() throws IOException
+	{
 		final Holiday[] expected = expectedBavarianHolidays();
 		assertThat(readBavarianHolidays().getDefinitions()).containsExactlyInAnyOrder(expected);
 	}
 
 	@Test
-	void bavarianHolidays_2021_04() throws IOException {
+	void bavarianHolidays_2021_04() throws IOException
+	{
 		final int year = 2021;
 		final int month = 4;
 
@@ -83,7 +91,8 @@ class HolidaySetTest {
 	}
 
 	@Test
-	void bavarianHolidays_2021_05() throws IOException {
+	void bavarianHolidays_2021_05() throws IOException
+	{
 		final int year = 2021;
 		final int month = 5;
 
@@ -96,31 +105,41 @@ class HolidaySetTest {
 		assertHolidays(year, month, expected);
 	}
 
-	private void assertHolidays(final int year, final int month, final Hashtable<Integer, String> expected)
-			throws IOException {
+	private void assertHolidays(final int year, final int month, @Nonnull final Hashtable<Integer, String> expected) throws IOException
+	{
 		final HolidaySet service = readBavarianHolidays();
 		final int n = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
-		for (int i = 1; i <= n; i++) {
+		for (int i = 1; i <= n; i++)
+		{
 			final String expectedName = expected.get(i);
 			final LocalDate date = LocalDate.of(year, month, i);
-			if (expectedName == null) {
+			if (expectedName == null)
+			{
 				assertThat(service.instances(date)).isEmpty();
-			} else {
+			}
+			else
+			{
 				final List<Holiday> list = service.instances(date);
-				assertThat(list.size()).isEqualTo(1);
+				assertThat(list).hasSize(1);
 				final Holiday actual = list.get(0);
 				assertThat(actual.getName()).isEqualTo(expectedName);
 			}
 		}
 	}
 
-	private HolidaySet readBavarianHolidays() throws IOException {
-		final HolidaysFileParser parser = new HolidaysFileParser("bavaria.txt");
-		final List<Holiday> list = parser.parse(HolidaySetTest.class.getResourceAsStream("bavaria.txt"));
-		return new HolidaySet(list);
+	private HolidaySet readBavarianHolidays() throws IOException
+	{
+		try (final InputStream bavariaConfigFile = HolidaySetTest.class.getResourceAsStream("bavaria.txt"))
+		{
+			assert bavariaConfigFile != null;
+			final HolidaysFileParser parser = new HolidaysFileParser("bavaria.txt");
+			final List<Holiday> list = parser.parse(bavariaConfigFile);
+			return new HolidaySet(list);
+		}
 	}
 
-	private Holiday[] expectedBavarianHolidays() {
+	private Holiday[] expectedBavarianHolidays()
+	{
 		return new Holiday[] {
 				new FixedDateHoliday("holiday", "Neujahr", MonthDay.of(1, 1)),
 				new FixedDateHoliday("holiday", "Heilige Drei Könige", MonthDay.of(1, 6)),
@@ -144,7 +163,7 @@ class HolidaySetTest {
 				new EasterBasedHoliday("holiday", "Fronleichnam", +60),
 				new FixedDateHoliday("holiday", "Mariä Himmelfahrt", MonthDay.of(8, 15)),
 				new FixedDateHoliday("holiday", "Allerheiligen", MonthDay.of(11, 1)),
-				new FloatingHoliday(
-						"holiday", "Totensonntag", 1, DayOfWeek.SUNDAY, Direction.AFTER, MonthDay.of(11, 20)) };
+				new FloatingHoliday("holiday", "Totensonntag", 1, DayOfWeek.SUNDAY, Direction.AFTER, MonthDay.of(11, 20))
+		};
 	}
 }

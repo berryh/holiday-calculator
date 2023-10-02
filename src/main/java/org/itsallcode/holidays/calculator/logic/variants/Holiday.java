@@ -1,17 +1,17 @@
 /**
  * holiday-calculator
  * Copyright (C) 2022 itsallcode <github@kuhnke.net>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,8 +21,13 @@ import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.Year;
 
-public abstract class Holiday {
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+public abstract class Holiday
+{
+	@Nonnull
 	public abstract LocalDate of(int year);
 
 	private final String category;
@@ -34,87 +39,102 @@ public abstract class Holiday {
 	 *                 processing the holiday.
 	 * @param name     Name of holiday.
 	 */
-	protected Holiday(String category, String name) {
+	protected Holiday(@Nonnull final String category, @Nonnull final String name)
+	{
 		this.category = category;
 		this.name = name;
 	}
 
-	public MonthDay getMonthDay() {
+	@CheckForNull
+	public MonthDay getMonthDay()
+	{
 		return null;
 	}
 
-	public Holiday withOffsetInDays(int offsetInDays) {
+	@Nonnull
+	public Holiday withOffsetInDays(final int offsetInDays)
+	{
 		this.offsetInDays = offsetInDays;
 		return this;
 	}
 
-	public String getCategory() {
+	@Nonnull
+	public String getCategory()
+	{
 		return category;
 	}
 
-	public String getName() {
+	@Nonnull
+	public String getName()
+	{
 		return name;
 	}
 
-	public LocalDate of(Year year) {
+	@Nonnull
+	public LocalDate of(@Nonnull final Year year)
+	{
 		return of(year.getValue());
 	}
 
+	@Nonnull
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return toString("");
 	}
 
 	/**
 	 * @param pivot pivot holiday, for which the current holiday is an alternative
 	 * @return string representation of current holiday as alternative to pivot
-	 *         holiday
+	 * holiday
 	 */
-	protected String toString(Holiday pivot) {
+	@Nonnull
+	protected String toString(@Nonnull final Holiday pivot)
+	{
 		return "";
 	}
 
-	protected String toString(String condition) {
+	@Nonnull
+	protected String toString(@Nonnull final String condition)
+	{
 		return "";
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((category == null) ? 0 : category.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + category.hashCode();
+		result = prime * result + name.hashCode();
 		result = prime * result + offsetInDays;
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(@Nullable final Object obj)
+	{
+		if (this == obj)
+		{
 			return true;
 		}
-		if (obj == null) {
+		if (obj == null)
+		{
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
+		{
 			return false;
 		}
 		final Holiday other = (Holiday) obj;
-		if (category == null) {
-			if (other.category != null) {
-				return false;
-			}
-		} else if (!category.equals(other.category)) {
+		if (!category.equals(other.category))
+		{
 			return false;
 		}
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
+		if (!name.equals(other.name))
+		{
 			return false;
 		}
 		return (offsetInDays == other.offsetInDays);
 	}
-
 }

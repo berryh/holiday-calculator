@@ -1,17 +1,17 @@
 /**
  * holiday-calculator
  * Copyright (C) 2022 itsallcode <github@kuhnke.net>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,17 +25,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.itsallcode.holidays.calculator.logic.variants.Holiday;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HolidaysFileParser {
+public class HolidaysFileParser
+{
 
-	public static class Error {
+	public static class Error
+	{
 		public final int lineNumber;
 		public final String content;
 
-		public Error(int lineNumber, String content) {
+		public Error(@Nonnull final int lineNumber, @Nonnull final String content)
+		{
 			this.lineNumber = lineNumber;
 			this.content = content;
 		}
@@ -53,27 +58,35 @@ public class HolidaysFileParser {
 	 *                              potential error messages. Could be name or path
 	 *                              of the file represented by the stream.
 	 */
-	public HolidaysFileParser(String inputSourceIdentifier) {
+	public HolidaysFileParser(@Nonnull final String inputSourceIdentifier)
+	{
 		this.identifier = inputSourceIdentifier;
 	}
 
-	public List<Holiday> parse(InputStream stream) throws IOException {
+	@Nonnull
+	public List<Holiday> parse(@Nonnull final InputStream stream) throws IOException
+	{
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
 		final List<Holiday> result = new ArrayList<>();
 
 		int n = 0;
 		String line;
-		while ((line = reader.readLine()) != null) {
+		while ((line = reader.readLine()) != null)
+		{
 			n++;
 			line = cutOffComment(line);
-			if (line.isEmpty()) {
+			if (line.isEmpty())
+			{
 				continue;
 			}
 
 			final Holiday holiday = holidayParser.parse(line);
-			if (holiday != null) {
+			if (holiday != null)
+			{
 				result.add(holiday);
-			} else {
+			}
+			else
+			{
 				LOG.error("File {}:{}: Couldn't parse '{}'.", identifier, n, line);
 				errors.add(new Error(n, line));
 			}
@@ -81,12 +94,15 @@ public class HolidaysFileParser {
 		return result;
 	}
 
-	private String cutOffComment(String string) {
+	@Nonnull
+	private String cutOffComment(final String string)
+	{
 		return string.replaceFirst(COMMENT_CHAR + ".*$", "").trim();
 	}
 
-	public List<Error> getErrors() {
+	@Nonnull
+	public List<Error> getErrors()
+	{
 		return errors;
 	}
-
 }

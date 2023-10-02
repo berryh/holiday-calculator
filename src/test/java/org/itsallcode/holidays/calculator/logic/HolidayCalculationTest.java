@@ -1,17 +1,17 @@
 /**
  * holiday-calculator
  * Copyright (C) 2022 itsallcode <github@kuhnke.net>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,7 +25,10 @@ import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 import org.itsallcode.holidays.calculator.logic.conditions.builder.ConditionBuilder;
 import org.itsallcode.holidays.calculator.logic.parser.AbbreviationParser;
@@ -41,8 +44,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class HolidayCalculationTest {
-
+class HolidayCalculationTest
+{
 	static final AbbreviationParser<DayOfWeek> DAY_OF_WEEK_PARSER = new AbbreviationParser<>(DayOfWeek.class);
 
 	static final Holiday BANK_HOLIDAY_DEC_27;
@@ -57,7 +60,8 @@ class HolidayCalculationTest {
 
 	static final Holiday MIDSOMMARAFTON;
 
-	static {
+	static
+	{
 		final ConditionBuilder dec25SatSun = new ConditionBuilder()
 				.withDaysOfWeek(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
 				.withPivotDate(MonthDay.of(12, 25));
@@ -90,23 +94,23 @@ class HolidayCalculationTest {
 		CONDITIONAL_HOLIDAY_WITH_NEGATED_DAYS_OF_WEEK = new ConditionalHoliday(dec25FriSat.negated(),
 				boxingDay);
 
-		NEGATED_DAYS_OF_WEEK_HOLIDAYS = new HolidaySet(
-				Arrays.asList(CONDITIONAL_HOLIDAY_WITH_NEGATED_DAYS_OF_WEEK));
+		NEGATED_DAYS_OF_WEEK_HOLIDAYS = new HolidaySet(Collections.singletonList(CONDITIONAL_HOLIDAY_WITH_NEGATED_DAYS_OF_WEEK));
 
 		MIDSOMMARAFTON = new FloatingHoliday("holiday", "Midsommarafton",
 				1, DayOfWeek.SATURDAY, Direction.BEFORE, MonthDay.of(6, 26)).withOffsetInDays(-1);
 	}
 
 	@Test
-	void toStringTest() {
+	void toStringTest()
+	{
 		assertThat(new FixedDateHoliday("birthday", "My Birthday", MonthDay.of(7, 31)))
 				.hasToString("FixedDateHoliday(birthday My Birthday: JUL 31)");
 		assertThat(new FloatingHoliday(
 				"holiday", "1. Advent", 4, DayOfWeek.SUNDAY, Direction.BEFORE, MonthDay.of(12, 24)))
-						.hasToString("FloatingHoliday(holiday 1. Advent: 4th Sunday before DEC 24)");
+				.hasToString("FloatingHoliday(holiday 1. Advent: 4th Sunday before DEC 24)");
 		assertThat(new FloatingHoliday(
 				"holiday", "Father's Day", 3, DayOfWeek.SUNDAY, Direction.AFTER, MonthDay.of(6, 1)))
-						.hasToString("FloatingHoliday(holiday Father's Day: 3rd Sunday after JUN 1)");
+				.hasToString("FloatingHoliday(holiday Father's Day: 3rd Sunday after JUN 1)");
 		assertThat(new EasterBasedHoliday("holiday", "Good Friday", -2))
 				.hasToString("EasterBasedHoliday(holiday Good Friday: 2 days before Easter)");
 		assertThat(new EasterBasedHoliday("holiday", "Easter Monday", +1))
@@ -128,7 +132,8 @@ class HolidayCalculationTest {
 	}
 
 	@Test
-	void invalidDate() {
+	void invalidDate()
+	{
 		assertThrows(java.time.DateTimeException.class,
 				() -> new FloatingHoliday("holiday", "Famous Februar, 30th",
 						1, DayOfWeek.MONDAY, Direction.BEFORE, MonthDay.of(2, 30)));
@@ -138,10 +143,6 @@ class HolidayCalculationTest {
 
 	/**
 	 * source: https://www.timeanddate.com/calendar/
-	 *
-	 * @param year        current year
-	 * @param expectation string encoding for December days 25 to 28, separated by
-	 *                    whitespace
 	 */
 	@ParameterizedTest(name = "{0} UK Bank Holidays Dec-27: {1} Dec-28: {2}")
 	@CsvSource(value = {
@@ -154,28 +155,36 @@ class HolidayCalculationTest {
 			"2016, 1, -",
 			"2017, -, -",
 	})
-	void conditionalHoliday(int year, String holiday1, String holiday2) {
+	void conditionalHoliday(final int year, @Nonnull final String holiday1, @Nonnull final String holiday2)
+	{
 		final YearMonth yearMonth = YearMonth.of(year, 12);
 
 		List<Holiday> instances = BANK_HOLIDAYS_DECEMBER.instances(yearMonth.atDay(27));
-		if (holiday1.equals("-")) {
+		if (holiday1.equals("-"))
+		{
 			assertThat(instances).isEmpty();
-		} else {
+		}
+		else
+		{
 			assertThat(instances).isNotEmpty();
 			assertThat(instances.get(0).getName()).isEqualTo("Bank Holiday " + holiday1);
 		}
 
 		instances = BANK_HOLIDAYS_DECEMBER.instances(yearMonth.atDay(28));
-		if (holiday2.equals("-")) {
+		if (holiday2.equals("-"))
+		{
 			assertThat(instances).isEmpty();
-		} else {
+		}
+		else
+		{
 			assertThat(instances).isNotEmpty();
 			assertThat(instances.get(0).getName()).isEqualTo("Bank Holiday " + holiday2);
 		}
 	}
 
 	@Test
-	void alternativeDateHoliday() {
+	void alternativeDateHoliday()
+	{
 		assertThat(KONINGSDAG.of(2014)).isEqualTo(LocalDate.of(2014, 4, 26));
 		assertThat(KONINGSDAG.of(2021)).isEqualTo(LocalDate.of(2021, 4, 27));
 
@@ -194,13 +203,17 @@ class HolidayCalculationTest {
 			"2016, Y",
 			"2017, Y",
 	})
-	void negatedDaysOfWeekHolidays(int year, String holiday) {
+	void negatedDaysOfWeekHolidays(final int year, final String holiday)
+	{
 		final YearMonth yearMonth = YearMonth.of(year, 12);
 
 		final List<Holiday> instances = NEGATED_DAYS_OF_WEEK_HOLIDAYS.instances(yearMonth.atDay(26));
-		if (holiday.equals("-")) {
+		if (holiday.equals("-"))
+		{
 			assertThat(instances).isEmpty();
-		} else {
+		}
+		else
+		{
 			assertThat(instances).isNotEmpty();
 			assertThat(instances.get(0).getName()).isEqualTo("Boxing day is extra day off");
 		}
@@ -213,21 +226,22 @@ class HolidayCalculationTest {
 			"1, MON, before, 2021, 05, last-day, 2021-05-31",
 			"6, MON, before, 2021, 05, last-day, 2021-04-26"
 	})
-	void floatingHoliday(int offset, String dayOfWeek, String direction, int year, int month, String dayString,
-			LocalDate expected) {
-		final String name = String.format("%d %s %s %s-%02d-%s",
-				offset, dayOfWeek, direction, year, month, dayString);
+	void floatingHoliday(final int offset, @Nonnull final String dayOfWeek, @Nonnull final String direction, final int year, final int month, @Nonnull final String dayString, @Nonnull final LocalDate expected)
+	{
+		final String name = String.format("%d %s %s %s-%02d-%s", offset, dayOfWeek, direction, year, month, dayString);
 
 		final FloatingHoliday holiday;
-		if (dayString.equals("last-day")) {
-
+		if (dayString.equals("last-day"))
+		{
 			holiday = new FloatingHoliday(
 					"holiday", name, offset,
 					DAY_OF_WEEK_PARSER.getEnumFor(dayOfWeek),
 					Direction.parse(direction),
 					month,
 					Day.LAST);
-		} else {
+		}
+		else
+		{
 			holiday = new FloatingHoliday(
 					"holiday", name, offset,
 					DAY_OF_WEEK_PARSER.getEnumFor(dayOfWeek),
@@ -239,7 +253,8 @@ class HolidayCalculationTest {
 	}
 
 	@Test
-	void floatingHolidayWithNegativeOffset() {
+	void floatingHolidayWithNegativeOffset()
+	{
 		assertThrows(java.lang.IllegalArgumentException.class,
 				() -> new FloatingHoliday("holiday", "Negative offset", -1, DayOfWeek.SATURDAY, Direction.AFTER,
 						MonthDay.of(6, 26)));
@@ -251,7 +266,8 @@ class HolidayCalculationTest {
 			"2015, 19", "2016, 24", "2017, 23", "2018, 22", "2019, 21",
 			"2020, 19", "2021, 25"
 	})
-	void midsommarAfton_floatingHolidayWithOffsetInDays(int year, int day) {
+	void midsommarAfton_floatingHolidayWithOffsetInDays(final int year, final int day)
+	{
 		assertThat(MIDSOMMARAFTON.of(year)).isEqualTo(LocalDate.of(year, 6, day));
 	}
 }

@@ -1,151 +1,139 @@
 plugins {
-    id 'java-library'
-    id 'signing'
-    id 'maven-publish'
-    id 'jacoco'
-    id 'com.github.hierynomus.license' version '0.16.1'
-    id 'org.sonarqube' version '3.3'
-    id 'io.codearte.nexus-staging' version '0.30.0'
-    id "com.github.ben-manes.versions" version '0.42.0'
+	id 'java-library'
+	id 'signing'
+	id 'maven-publish'
+	id 'jacoco'
+	id 'org.sonarqube' version '3.3'
+	id 'io.codearte.nexus-staging' version '0.30.0'
+	id "com.github.ben-manes.versions" version '0.42.0'
 }
 
 group 'org.itsallcode'
 version = '0.2.1'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-    withJavadocJar()
-    withSourcesJar()
-}
-
-javadoc {
-    options.addBooleanOption('html5', true)
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(8)
+	}
+	withJavadocJar()
+	withSourcesJar()
 }
 
 tasks.withType(JavaCompile) {
-    options.compilerArgs << '-Xlint:all'
-    options.encoding = 'UTF-8'
+	options.compilerArgs << '-Xlint:all'
+	options.encoding = 'UTF-8'
 }
 
 test {
-    if(logger.infoEnabled) {
-        testLogging.showStandardStreams = true
-    }
-    jvmArgs '-XX:+HeapDumpOnOutOfMemoryError', '-enableassertions'
-    useJUnitPlatform()
+	if (logger.infoEnabled) {
+		testLogging.showStandardStreams = true
+	}
+	jvmArgs '-XX:+HeapDumpOnOutOfMemoryError', '-enableassertions'
+	useJUnitPlatform()
 }
 
 ext {
-    junitVersion = '5.8.2'
-    mockitoVersion = '4.5.1'
-    lockbackVersion = '1.2.11'
+	junitVersion = '5.8.2'
+	mockitoVersion = '4.5.1'
+	lockbackVersion = '1.2.11'
 }
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api:1.7.36'
+	implementation 'org.slf4j:slf4j-api:1.7.36'
+	implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
-    testImplementation "org.mockito:mockito-core:$mockitoVersion"
-    testImplementation 'org.assertj:assertj-core:3.22.0'
-    testImplementation "org.mockito:mockito-junit-jupiter:$mockitoVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
 
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    testRuntimeOnly "ch.qos.logback:logback-classic:$lockbackVersion"
-}
+	testImplementation "org.mockito:mockito-core:$mockitoVersion"
+	testImplementation 'org.assertj:assertj-core:3.22.0'
+	testImplementation "org.mockito:mockito-junit-jupiter:$mockitoVersion"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+	testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
 
-license {
-    header = file('gradle/license-header.txt')
-    ext.project = 'holiday-calculator'
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
-    ext.name = 'itsallcode'
-    ext.email = 'github@kuhnke.net'
-    include '**/*.java'
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+	testRuntimeOnly "ch.qos.logback:logback-classic:$lockbackVersion"
 }
 
 jacocoTestReport {
-    reports {
-        xml.required = true
-    }
+	reports {
+		xml.required = true
+	}
 }
 
 rootProject.tasks["sonarqube"].dependsOn(tasks["jacocoTestReport"])
 
 def getOptionalProperty(String name) {
-    if(project.hasProperty(name)) {
-        return project.property(name)
-    }
-    logger.info("Project property '${name}' not available. Please it to ~/.gradle/gradle.properties")
-    return null
+	if (project.hasProperty(name)) {
+		return project.property(name)
+	}
+	logger.info("Project property '${name}' not available. Please add it to ~/.gradle/gradle.properties")
+	return null
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            pom {
-                name = 'Holiday Calculator'
-                description = 'Java library for calculating public holidays'
-                url = 'https://github.com/itsallcode/holiday-calculator'
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+			pom {
+				name = 'Holiday Calculator'
+				description = 'Java library for calculating public holidays'
+				url = 'https://github.com/itsallcode/holiday-calculator'
 
-                licenses {
-                    license {
-                        name = 'GNU General Public License, Version 3.0'
-                        url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'ckunki'
-                        name = 'Christoph'
-                        email = 'github@kuhnke.net'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:https://github.com/itsallcode/holiday-calculator.git'
-                    developerConnection = 'scm:git:https://github.com/itsallcode/holiday-calculator.git'
-                    url = 'https://github.com/itsallcode/holiday-calculator'
-                }
-            }
-        }
-    }
+				licenses {
+					license {
+						name = 'GNU General Public License, Version 3.0'
+						url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
+					}
+				}
+				developers {
+					developer {
+						id = 'ckunki'
+						name = 'Christoph'
+						email = 'github@kuhnke.net'
+					}
+				}
+				scm {
+					connection = 'scm:git:https://github.com/itsallcode/holiday-calculator.git'
+					developerConnection = 'scm:git:https://github.com/itsallcode/holiday-calculator.git'
+					url = 'https://github.com/itsallcode/holiday-calculator'
+				}
+			}
+		}
+	}
 
-    repositories {
-        maven {
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            allowInsecureProtocol = false
-            credentials(PasswordCredentials) {
-                username = getOptionalProperty("ossrhUsername")
-                password = getOptionalProperty("ossrhPassword")
-            }
-        }
-    }
+	repositories {
+		maven {
+			def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+			def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+			url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+			allowInsecureProtocol = false
+			credentials(PasswordCredentials) {
+				username = getOptionalProperty("ossrhUsername")
+				password = getOptionalProperty("ossrhPassword")
+			}
+		}
+	}
 }
 
 signing {
-    sign publishing.publications.mavenJava
+	sign publishing.publications.mavenJava
 }
 
 nexusStaging {
-    packageGroup = project.group
-    username = getOptionalProperty("ossrhUsername")
-    password = getOptionalProperty("ossrhPassword")
+	packageGroup = project.group
+	username = getOptionalProperty("ossrhUsername")
+	password = getOptionalProperty("ossrhPassword")
 }
 
 
 def isNonStable = { String version ->
-  def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
-  def regex = /^[0-9,.v-]+(-r)?$/
-  return !stableKeyword && !(version ==~ regex)
+	def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+	def regex = /^[0-9,.v-]+(-r)?$/
+	return !stableKeyword && !(version ==~ regex)
 }
 
 tasks.named("dependencyUpdates").configure {
-  gradleReleaseChannel = "current"
-  rejectVersionIf {
-    isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
-  }
+	gradleReleaseChannel = "current"
+	rejectVersionIf {
+		isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
+	}
 }

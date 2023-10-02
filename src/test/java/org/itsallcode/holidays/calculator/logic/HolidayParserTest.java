@@ -1,17 +1,17 @@
 /**
  * holiday-calculator
  * Copyright (C) 2022 itsallcode <github@kuhnke.net>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,17 +37,19 @@ import org.itsallcode.holidays.calculator.logic.variants.OrthodoxEasterBasedHoli
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class HolidayParserTest {
-
+class HolidayParserTest
+{
 	private HolidayParser holidayParser;
 
 	@BeforeEach
-	private void setup() {
+	public void setup()
+	{
 		holidayParser = new HolidayParser();
 	}
 
 	@Test
-	void category() {
+	void category()
+	{
 		assertThat(holidayParser.parse("birthday fixed 7 31 My Birthday"))
 				.isEqualTo(new FixedDateHoliday("birthday", "My Birthday", MonthDay.of(7, 31)));
 		assertThat(holidayParser.parse("birthday fixed 7 31 My Birthday"))
@@ -55,7 +57,8 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void dayOfWeek() {
+	void dayOfWeek()
+	{
 		// two letters
 		assertThat(holidayParser.parse("holiday float 4 SU before 12 24 1. Advent"))
 				.isEqualTo(new FloatingHoliday(
@@ -71,25 +74,29 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void whitespace() {
+	void whitespace()
+	{
 		assertThat(holidayParser.parse("   holiday    float  4 SUN\tbefore \t 12 24 1. Advent     "))
 				.isEqualTo(new FloatingHoliday(
 						"holiday", "1. Advent", 4, DayOfWeek.SUNDAY, Direction.BEFORE, MonthDay.of(12, 24)));
 	}
 
 	@Test
-	void invalidPivotDate() {
+	void invalidPivotDate()
+	{
 		assertNull(holidayParser.parse("holiday float 4 SU before 13 1 Famous Februar, 30th"));
 		assertNull(holidayParser.parse("holiday float 4 SU before 01 32 Famous Februar, 30th"));
 	}
 
 	@Test
-	void illegalType() {
+	void illegalType()
+	{
 		assertNull(holidayParser.parse("holiday illegaType -4 SU 12 24 1. Advent"));
 	}
 
 	@Test
-	void ambigueDayOfWeekAbbreviation() {
+	void ambigueDayOfWeekAbbreviation()
+	{
 		assertThrows(AmbigueAbbreviationException.class,
 				() -> holidayParser.parse("holiday float 1 S before 1 1 Ambigue January S-day"));
 		assertThrows(AmbigueAbbreviationException.class,
@@ -97,13 +104,15 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void invalidDayOfWeekAbbreviation() {
+	void invalidDayOfWeekAbbreviation()
+	{
 		assertThrows(InvalidAbbreviationException.class,
 				() -> holidayParser.parse("holiday float 1 Sonntag before 1 1 Invalid week day"));
 	}
 
 	@Test
-	void nonAmbigueDayOfWeekAbbreviation() {
+	void nonAmbigueDayOfWeekAbbreviation()
+	{
 		assertThat(holidayParser.parse("holiday float 1 M after 1 1 Non-ambigue M-day"))
 				.isEqualTo(new FloatingHoliday(
 						"holiday", "Non-ambigue M-day", 1, DayOfWeek.MONDAY, Direction.AFTER, MonthDay.of(1, 1)));
@@ -116,12 +125,14 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void offsetTooLarge() {
+	void offsetTooLarge()
+	{
 		assertNull(holidayParser.parse("holiday float 213 SU before 12 24 1. Advent"));
 	}
 
 	@Test
-	void notEqualFixed() {
+	void notEqualFixed()
+	{
 		// day
 		assertThat(holidayParser.parse("holiday fixed 1 1 Neujahr"))
 				.isNotEqualTo(new FixedDateHoliday("holiday", "Neujahr", MonthDay.of(1, 2)));
@@ -131,7 +142,8 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void notEqualFLoating() {
+	void notEqualFLoating()
+	{
 		// name
 		assertThat(holidayParser.parse("holiday float 4 SUN before 12 24 1. Advent"))
 				.isNotEqualTo(new FloatingHoliday(
@@ -155,7 +167,8 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void leadingZeros() {
+	void leadingZeros()
+	{
 		assertThat(holidayParser.parse("holiday fixed 01 01 Neujahr"))
 				.isEqualTo(new FixedDateHoliday("holiday", "Neujahr", MonthDay.of(1, 1)));
 		assertThat(holidayParser.parse("holiday float 1 MON before 01 01 Fictional New Year's Monday"))
@@ -164,7 +177,8 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void monthNames() {
+	void monthNames()
+	{
 		assertThat(holidayParser.parse("holiday fixed Jan 1 Neujahr"))
 				.isEqualTo(new FixedDateHoliday("holiday", "Neujahr", MonthDay.of(1, 1)));
 		assertThat(holidayParser.parse("holiday fixed D 24 XMas Eve"))
@@ -175,7 +189,8 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void ambigueMonthName() {
+	void ambigueMonthName()
+	{
 		assertThrows(AmbigueAbbreviationException.class,
 				() -> holidayParser.parse("holiday fixed M 1 Ambigue M-Month 1"));
 		assertThrows(AmbigueAbbreviationException.class,
@@ -183,19 +198,22 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void invalidMonthAbbreviation() {
+	void invalidMonthAbbreviation()
+	{
 		assertThrows(InvalidAbbreviationException.class,
 				() -> holidayParser.parse("holiday fixed Me 1 Ambigue Me-Month 1"));
 	}
 
 	@Test
-	void fixedDate() {
+	void fixedDate()
+	{
 		assertThat(holidayParser.parse("holiday fixed 1 1 Neujahr"))
 				.isEqualTo(new FixedDateHoliday("holiday", "Neujahr", MonthDay.of(1, 1)));
 	}
 
 	@Test
-	void floatingDate() {
+	void floatingDate()
+	{
 		assertThat(holidayParser.parse("holiday float 4 SUN before 12 24 1. Advent"))
 				.isEqualTo(new FloatingHoliday(
 						"holiday", "1. Advent", 4, DayOfWeek.SUNDAY, Direction.BEFORE, MonthDay.of(12, 24)));
@@ -206,53 +224,61 @@ class HolidayParserTest {
 	}
 
 	@Test
-	void easter() {
+	void easter()
+	{
 		assertThat(holidayParser.parse("holiday easter +39 Christi Himmelfahrt"))
 				.isEqualTo(new EasterBasedHoliday("holiday", "Christi Himmelfahrt", +39));
 	}
 
 	@Test
-	void orthodoxEaster() {
+	void orthodoxEaster()
+	{
 		assertThat(holidayParser.parse("holiday orthodox-easter -2 Orthodox Good Friday"))
 				.isEqualTo(new OrthodoxEasterBasedHoliday("holiday", "Orthodox Good Friday", -2));
 	}
 
 	@Test
-	void conditionalHoliday() {
+	void conditionalHoliday()
+	{
 		assertThat(holidayParser.parse(
 				"holiday if DEC 25 is Sat,Sun then fixed DEC 27 Bank Holiday 1"))
-						.isEqualTo(HolidayCalculationTest.BANK_HOLIDAY_DEC_27);
+				.isEqualTo(HolidayCalculationTest.BANK_HOLIDAY_DEC_27);
 	}
 
 	@Test
-	void conditionalHolidayWithNegatedDaysOfWeek() {
+	void conditionalHolidayWithNegatedDaysOfWeek()
+	{
 		assertThat(holidayParser.parse(
 				"holiday if DEC 25 is not Fri,Sat then fixed DEC 26 Boxing day is extra day off"))
-						.isEqualTo(HolidayCalculationTest.CONDITIONAL_HOLIDAY_WITH_NEGATED_DAYS_OF_WEEK);
+				.isEqualTo(HolidayCalculationTest.CONDITIONAL_HOLIDAY_WITH_NEGATED_DAYS_OF_WEEK);
 	}
 
 	@Test
-	void alternativeDateHoliday() {
+	void alternativeDateHoliday()
+	{
 		final Holiday actual = holidayParser.parse(
 				"holiday either 4 27 or if SUN then fixed 4 26 Koningsdag");
 		assertThat(actual).isEqualTo(HolidayCalculationTest.KONINGSDAG);
 	}
 
 	@Test
-	void alternativeDateHolidayWithNegatedDaysOfWeek() {
+	void alternativeDateHolidayWithNegatedDaysOfWeek()
+	{
 		final Holiday actual = holidayParser.parse(
 				"holiday either 4 27 or if not Mon,Tue,We,Thu,Fri,Sat then fixed 4 26 Koningsdag");
 		assertThat(actual).isEqualTo(HolidayCalculationTest.KONINGSDAG_WITH_NEGATED_DAYS_OF_WEEK);
 	}
 
 	@Test
-	void midsommarAfton_floatingHolidayWithOffsetInDays() {
+	void midsommarAfton_floatingHolidayWithOffsetInDays()
+	{
 		assertThat(holidayParser.parse("holiday float 1 day before 1 Sat before JUN 26 Midsommarafton"))
 				.isEqualTo(HolidayCalculationTest.MIDSOMMARAFTON);
 	}
 
 	@Test
-	void successfulParsing() {
+	void successfulParsing()
+	{
 		assertThat(holidayParser.parse("holiday fixed 1 1 Neujahr"))
 				.isEqualTo(new FixedDateHoliday("holiday", "Neujahr", MonthDay.of(1, 1)));
 		assertThat(holidayParser.parse("holiday fixed 1 6 Heilige Drei Könige"))
@@ -304,5 +330,4 @@ class HolidayParserTest {
 				.isEqualTo(new FloatingHoliday(
 						"holiday", "Totensonntag", 1, DayOfWeek.SUNDAY, Direction.AFTER, MonthDay.of(11, 20)));
 	}
-
 }

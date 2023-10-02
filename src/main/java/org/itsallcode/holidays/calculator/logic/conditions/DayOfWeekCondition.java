@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.itsallcode.holidays.calculator.logic.Formatter;
 
 /**
@@ -40,30 +42,32 @@ public class DayOfWeekCondition extends Condition {
 	private MonthDay pivot;
 	private final Set<DayOfWeek> daysOfWeek = new HashSet<>();
 
-	public DayOfWeekCondition(DayOfWeek... daysOfWeek) {
+	public DayOfWeekCondition(final DayOfWeek... daysOfWeek) {
 		this(null, daysOfWeek);
 	}
 
-	public DayOfWeekCondition(MonthDay pivot, DayOfWeek... daysOfWeek) {
+	public DayOfWeekCondition(final MonthDay pivot, final DayOfWeek... daysOfWeek) {
 		this.pivot = pivot;
 		this.daysOfWeek.addAll(Arrays.asList(daysOfWeek));
 	}
 
 	@Override
-	public boolean applies(Year year) {
+	public boolean applies(@Nonnull final Year year) {
 		return daysOfWeek.contains(year.atMonthDay(pivot).getDayOfWeek());
 	}
 
+	@Nonnull
 	@Override
-	public Condition withPivotDate(MonthDay pivot) {
+	public Condition withPivotDate(@Nonnull final MonthDay pivot) {
 		if (this.pivot == null) {
 			this.pivot = pivot;
 		}
 		return this;
 	}
 
+	@Nonnull
 	@Override
-	public String toString(String prefix, boolean negated) {
+	public String toString(@Nonnull final String prefix, final boolean negated) {
 		final String days = Arrays.asList(daysOfWeek.toArray(new DayOfWeek[0]))
 				.stream()
 				.sorted(DayOfWeek::compareTo)
@@ -86,7 +90,7 @@ public class DayOfWeekCondition extends Condition {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}

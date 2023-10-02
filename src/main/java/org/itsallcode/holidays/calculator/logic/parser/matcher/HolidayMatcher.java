@@ -1,23 +1,21 @@
 /**
  * holiday-calculator
  * Copyright (C) 2022 itsallcode <github@kuhnke.net>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.itsallcode.holidays.calculator.logic.parser.matcher;
-
-import static java.util.stream.Collectors.toList;
 
 import java.time.DayOfWeek;
 import java.time.Month;
@@ -26,13 +24,19 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.itsallcode.holidays.calculator.logic.conditions.builder.ConditionBuilder;
 import org.itsallcode.holidays.calculator.logic.parser.AbbreviationParser;
 import org.itsallcode.holidays.calculator.logic.variants.Holiday;
 
-public abstract class HolidayMatcher {
+public abstract class HolidayMatcher
+{
 
-	public static HolidayMatcher[] matchers() {
+	public static HolidayMatcher[] matchers()
+	{
 		return new HolidayMatcher[] {
 				new NegatedConditionMatcher(new FixedDateMatcher(),
 						Patterns.FIXED_HOLIDAY_CONDITIONAL_NEGATED),
@@ -47,7 +51,8 @@ public abstract class HolidayMatcher {
 		};
 	}
 
-	abstract Holiday createHoliday(Matcher matcher);
+	@CheckForNull
+	abstract Holiday createHoliday(@Nonnull Matcher matcher);
 
 	private static final Pattern MONTH_NAME_PATTERN = Pattern.compile(
 			Patterns.NAME_REGEXP, Pattern.CASE_INSENSITIVE);
@@ -58,22 +63,33 @@ public abstract class HolidayMatcher {
 
 	private final HolidayMatcher originalMatcher;
 
-	protected HolidayMatcher(Pattern pattern) {
+	protected HolidayMatcher(@Nonnull final Pattern pattern)
+	{
 		this(null, pattern);
 	}
 
-	protected HolidayMatcher(HolidayMatcher originalMatcher, Pattern pattern) {
+	protected HolidayMatcher(@Nullable final HolidayMatcher originalMatcher, @Nonnull final Pattern pattern)
+	{
 		this.originalMatcher = originalMatcher;
 		this.pattern = pattern;
 	}
 
-	protected Holiday createOriginalHoliday(Matcher matcher) {
+	@CheckForNull
+	protected Holiday createOriginalHoliday(@Nonnull final Matcher matcher)
+	{
+		if (originalMatcher == null)
+		{
+			return null;
+		}
 		return originalMatcher.createHoliday(matcher);
 	}
 
-	public Holiday createHoliday(String line) {
+	@CheckForNull
+	public Holiday createHoliday(@Nonnull final String line)
+	{
 		final Matcher matcher = pattern.matcher(line);
-		if (!matcher.matches()) {
+		if (!matcher.matches())
+		{
 			return null;
 		}
 		return createHoliday(matcher);
@@ -83,30 +99,41 @@ public abstract class HolidayMatcher {
 	 * @param arg (abbreviated) name of month or number as String
 	 * @return number of month as integer
 	 */
-	protected int monthNumber(String arg) {
-		if (MONTH_NAME_PATTERN.matcher(arg).matches()) {
+	protected int monthNumber(@Nonnull final String arg)
+	{
+		if (MONTH_NAME_PATTERN.matcher(arg).matches())
+		{
 			return monthNameParser.getEnumFor(arg).getValue();
-		} else {
+		}
+		else
+		{
 			return Integer.parseInt(arg);
 		}
 	}
 
-	protected MonthDay monthDay(String month, String day) {
+	@Nonnull
+	protected MonthDay monthDay(@Nonnull final String month, @Nonnull final String day)
+	{
 		return MonthDay.of(monthNumber(month), Integer.parseInt(day));
 	}
 
-	protected DayOfWeek dayOfWeek(String prefix) {
+	@Nonnull
+	protected DayOfWeek dayOfWeek(@Nonnull final String prefix)
+	{
 		return dayOfWeekParser.getEnumFor(prefix);
 	}
 
-	protected DayOfWeek[] daysOfWeek(String commaSeparatedList) {
-		return Arrays.asList(commaSeparatedList.split(","))
-				.stream().map(this::dayOfWeek)
-				.collect(toList())
-				.toArray(new DayOfWeek[0]);
+	@Nonnull
+	protected DayOfWeek[] daysOfWeek(@Nonnull final String commaSeparatedList)
+	{
+		return Arrays.stream(commaSeparatedList.split(","))
+				.map(this::dayOfWeek)
+				.toArray(DayOfWeek[]::new);
 	}
 
-	public ConditionBuilder createConditionBuilder(Matcher matcher) {
+	@Nonnull
+	public ConditionBuilder createConditionBuilder(@Nonnull final Matcher matcher)
+	{
 		return new ConditionBuilder()
 				.withDaysOfWeek(daysOfWeek(matcher.group(Patterns.PIVOT_DAYS_OF_WEEK_GROUP)))
 				.withPivotDate(monthDay(

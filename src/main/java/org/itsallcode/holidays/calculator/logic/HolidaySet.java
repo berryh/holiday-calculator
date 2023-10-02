@@ -1,17 +1,17 @@
 /**
  * holiday-calculator
  * Copyright (C) 2022 itsallcode <github@kuhnke.net>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 import org.itsallcode.holidays.calculator.logic.variants.Holiday;
 
@@ -41,39 +43,46 @@ import org.itsallcode.holidays.calculator.logic.variants.Holiday;
  * offset of days</li>
  * </ul>
  */
-public class HolidaySet {
-
+public class HolidaySet
+{
 	final List<Holiday> definitions = new ArrayList<>();
 
 	// caches
 	private final Set<Integer> years = new HashSet<>();
 	private final HashMap<LocalDate, List<Holiday>> holidayInstances = new HashMap<>();
 
-	public HolidaySet(final Collection<Holiday> definitions) {
+	public HolidaySet(@Nonnull final Collection<Holiday> definitions)
+	{
 		this.definitions.addAll(definitions);
 	}
 
 	/**
 	 * @param date date
 	 * @return List of holidays occurring on the given date. If there is no holiday
-	 *         on given date, then list is empty.
+	 * on given date, then list is empty.
 	 */
-	public List<Holiday> instances(LocalDate date) {
+	@Nonnull
+	public List<Holiday> instances(@Nonnull final LocalDate date)
+	{
 		cacheHolidays(date.getYear());
 
 		final List<Holiday> instances = holidayInstances.get(date);
-		if (instances == null) {
-			return Collections.<Holiday>emptyList();
+		if (instances == null)
+		{
+			return Collections.emptyList();
 		}
 		return instances;
 	}
 
-	private void cacheHolidays(final int year) {
-		if (years.contains(year)) {
+	private void cacheHolidays(final int year)
+	{
+		if (years.contains(year))
+		{
 			return;
 		}
 
-		for (final Holiday holiday : definitions) {
+		for (final Holiday holiday : definitions)
+		{
 			final LocalDate date = holiday.of(year);
 			final List<Holiday> entry = holidayInstances.computeIfAbsent(date, d -> new ArrayList<>());
 			entry.add(holiday);
@@ -81,8 +90,9 @@ public class HolidaySet {
 		years.add(year);
 	}
 
-	List<Holiday> getDefinitions() {
+	@Nonnull
+	List<Holiday> getDefinitions()
+	{
 		return definitions;
 	}
-
 }
